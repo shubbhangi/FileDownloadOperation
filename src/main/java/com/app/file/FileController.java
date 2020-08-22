@@ -52,13 +52,14 @@ public class FileController {
 			
 			return ResponseEntity.ok(response);
 			
+			
 		}
 		else {
 			
     	String fileName =  fileStorageService.storeFile(file);
      
         if (fileName != null) {
-			
+			logger.info("your File is uploaded successfully");
 				response.setMessage("your File is uploaded successfully");
 
 				response.setData(fileName);
@@ -67,6 +68,7 @@ public class FileController {
 
 				return ResponseEntity.ok(response);
 			} else {
+				logger.error("your File is not uploaded");
 				response.setMessage("your File is not uploaded");
 
 				response.setData(empty);
@@ -81,10 +83,9 @@ public class FileController {
     
     @GetMapping("/downloadFile/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
-        // Load file as Resource
+       
         Resource resource = fileStorageService.loadFileAsResource(fileName);
 
-        // Try to determine file's content type
         String contentType = null;
         try {
             contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
@@ -92,7 +93,6 @@ public class FileController {
             logger.info("Could not determine file type.");
         }
 
-        // Fallback to the default content type if type could not be determined
         if(contentType == null) {
             contentType = "application/octet-stream";
         }
@@ -105,21 +105,24 @@ public class FileController {
 
     @GetMapping("/deleteFile/{fileName:.+}")
     public ResponseEntity<ResponseObject> deleteFile(@PathVariable String fileName, HttpServletRequest request) {
-        // Load file as Resource
+       
     	try {
         Resource resource = fileStorageService.loadFileAsResource(fileName);
 
         	Files.delete(Paths.get(resource.getFile().getAbsolutePath()));
+        	logger.info("FILE DELETED SUCCESSFULLY");
         	response.setError("1");
-			response.setMessage(fileName+" FILE DELETED SUCCESSFULLY");
+        	
+        	response.setMessage(fileName+" FILE DELETED SUCCESSFULLY");
 			response.setData(empty);
 			response.setStatus("FAIL");
 			
 			return ResponseEntity.ok(response);
             
         } catch (IOException ex) {
-            logger.info("file does not exist");
-            response.setError("1");
+            logger.error("file does not exist");
+            
+            response.setError("1");   
 			response.setMessage("file does not exist");
 			response.setData(empty);
 			response.setStatus("FAIL");

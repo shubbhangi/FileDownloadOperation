@@ -97,7 +97,7 @@ public class FileStorageService {
 		String name = file.getOriginalFilename();
 		int lastIndexOf = name.lastIndexOf(".");
 		if (lastIndexOf == -1) {
-			return ""; // empty extension
+			return ""; 
 		}
 		return name.substring(lastIndexOf);
 	}
